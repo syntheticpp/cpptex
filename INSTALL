@@ -1,0 +1,14 @@
+
+To install, do
+
+  ./configure
+  make
+  make install
+
+The usual options for configure apply.
+
+For a test, go to the 'tests' directory and do
+
+  texpp --plain < tst.tex > out.dvi
+
+This should be self-explanatory.

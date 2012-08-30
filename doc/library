@@ -1,0 +1,12 @@
+
+need a DVI inheritance, such that instead of writing positioning data to 
+a dvi file, we keep state info and move the cursor and plot characters.
+
+
+
+
+tex mytex;
+
+mytex << "$x^2 + " << link(myfun)
+	   << "y^2" << endlink << "$ is an equation";
+

@@ -1,0 +1,38 @@
+- Turn the (done) items below into documentation.
+
+- Add command \push to put the entire state in memory,
+and a command \pop to get it back. Or something like that. Then you can
+do
+
+   \documentclass{article}
+   \usepackage{amsmath}
+   \push
+   \begin{document}
+
+    ....
+   \end{document}
+   \pop\push
+   \begin{document}
+
+    ....
+   \end{document}
+
+It is not clear whether this is really worth it though; speed seems to be fine.
+(0.6 seconds for a 26 page paper in harvmac which in turn uses plain, 0.3 seconds
+for a 9 page paper).
+
+   
+- How do we handle input from the terminal, like harvac's annoying
+'big or little?'?
+
+- (done) plain's \magnification is a problem, because it resets the
+hsize and vsize. So we cannot just capture the first setting, we have
+to capture subsequent ones too. The logic should be that we only allow
+modifications of hsize/vsize _after_ the first box has been created.
+
+- Need some logic to allow for arbitrarily long pages (to view entire
+document in one browser window). Related: need something for placement
+of footnotes in this case).
+
+- Remove NONSTOPMODE, the various output modes (TERM, LOG and so on)
+  and cleanup terminal input handling.

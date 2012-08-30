@@ -1,0 +1,43 @@
+2002-08-26  Kasper Peeters  <K.Peeters@damtp.cam.ac.uk>
+
+	* Removed '#define round' from tex.h to fix compilation error with
+	gcc 3.1 and higher (thanks to D.Cooke).
+
+2002-04-18  Kasper Peeters  <K.Peeters@damtp.cam.ac.uk>
+
+	* First step in cleanup of errors, warnings and progress
+	information (a lot more to do).
+
+	* More #defines removed. Many global symbols moved into the "tex"
+	namespace to avoid clashes with the standard C++ library.
+
+2002-04-12  Kasper Peeters  <Kasper.Peeters@cern.ch>
+
+	* No more need for '\input plain.tex' or '\input latex.ltx'; using
+	the flags --plain or --latex these files will be read
+	automatically at startup.
+
+2002-04-08  Kasper Peeters  <Kasper.Peeters@cern.ch>
+
+	* A lot of terminal I/O removed, cleaner startup code, all
+	compiler warnings removed, several '#define's removed, started
+	putting things in namespaces.
+
+2002-04-05  Kasper Peeters  <Kasper.Peeters@cern.ch>
+
+	* A lot of superfluous error handling code removed, file I/O
+	cleaned up.
+
+2002-03-29  Kasper Peeters  <K.Peeters@damtp.cam.ac.uk>
+
+	* Page geometry enforcement in place. Still needs to be set by
+	command line arguments.
+
+2002-03-28  Kasper Peeters  <K.Peeters@damtp.cam.ac.uk>
+
+	* Passes the simple tst.tex and tst_latex.tex tests (loading plain
+	and latex directly, not from a format file).
+
+	* First version to compile with g++ 3.x (that is, the C++
+	compiler).
+

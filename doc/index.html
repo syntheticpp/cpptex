@@ -1,0 +1,262 @@
+<html>
+<head>
+<title>TeX++ documentation</title>
+<!-- Changed by: Kasper Peeters, 16-Apr-2002 -->
+</head>
+<body bgcolor="white">
+<center>
+<h1>TeX++</h1>
+A modern and free C++ implementation of TeX based on CommonTeX<br><p>
+<a href="../index.html">Kasper Peeters</a>, &lt;<a href="mailto:k.peeters@damtp.cam.ac.uk">K.Peeters@damtp.cam.ac.uk</a>&gt;
+</center>
+<p>
+<table width="100%">
+<tr><td>[<a href="#overview">motivation</a>]</td>
+    <td>[<a href="#status">status</a>]</td>
+    <td>[<a href="#download">download</a>]</td>
+    <td>[<a href="#new">new features</a>]</td>
+    <td>[<a href="#error">error/warning messages</a>]</td>
+</tr>
+</table>
+<p>
+<center><strong><font color="red">NOTE: this is a preliminary release,
+not everything described below has been implemented yet</font></strong></center>
+<p>
+<a name="overview">
+<h3>Why a new TeX implementation?</h3> 
+<blockquote>
+The current de-facto standard implementation of TeX for Unix,
+namely the one based on <a href="http://www.tug.org/web2c/">Web2c</a>, 
+has a number of shortcomings:
+<ul>
+<li>It is written in Pascal (dressed up in Web) which is a language
+that not many modern programmers are familiar with. Extensions to TeX
+are therefore very, very hard to get implemented. Moreover, because of
+this intermediate Pascal to C translation layer, the size of the
+sources is extremely big (despite the fact that the resulting
+"<code>tex</code>" binary may be small). It is also a pain to install from
+sources (with TeX++ it's a matter of <code>./configure</code>,
+<code>make</code>, <code>make install</code> together with some
+<a href="#paths">trivial settings</a> to make it pick up the fonts and
+style files).
+<li>It still uses many ancient ideas from the original 1982
+implementation of TeX (excessive emphasis on reduction of memory usage, for
+instance). A lot of things can be done much more cleanly when present-day
+computing power is taken into account. 
+<li>It uses the (in my opinion) ridiculous path searching
+mechanism of kpathsea, which is enormously bloated simply because it
+tries to be backwards compatible with every single TeX installation
+in existence. There are much cleaner and simpler solutions for pathname
+resolution.
+<li>It does in general not conform to the Unix "filter" philosophy, in
+which input comes from stdin, output goes to stdout and diagnostic
+messages go to stderr.
+</ul>
+TeX++ solves all of these issues, while at the same time staying as
+close as possible to the original TeX.
+Moreover, it has a number of interesting <a href="#new">new
+features</a> which make it possible to use TeX as a typesetting engine
+for a web browser. More on this at some later stage.
+<p>
+Why not implement a TeX-like program in a completely modern object
+oriented fashion, from scratch (like <a
+href="http://nts.tug.org">NTS</a> for instance, or <a
+href="http://www-mgi.informatik.rwth-aachen.de/~blume/Download.html">ant</a>)?
+The reason is simply that there is no point throwing away things that
+work. Moreover, there are zillions of documents out there written in
+TeX, using the macro facilities of TeX in such a way that they will
+never translate properly into a subset of the language. It is
+therefore very hard to write a program that is not TeX yet processes
+all existing .tex files properly.  CommonTeX is an excellent
+implementation which is easy to maintain, and more importantly, it is
+completely functional <strong>now</strong>. A slow conversion to more
+and more "modern" programming styles is anticipated.
+<p>
+See also <a
+href="http://www.joelonsoftware.com/articles/fog0000000069.html">Never
+rewrite code from scratch</a> (which I certainly do not agree with in
+general, but applies beautifully to this particular project).
+<p>
+I chose CommonTeX as the starting point for TeX++ because it was
+written from scratch in C, rather than being converted from the
+Pascal sources by an automatic converter (see <a
+href="http://www.math.uni.wroc.pl/~hebisch/">TeX in C</a> for an
+example of a TeX version in C which was based on an automatic
+conversion from the Pascal original). The automatically generated
+C sources are typically horrible to read, let alone extend. 
+</blockquote>
+<p><br><p>
+
+<a name="status"><h3>Status</h3></a>
+<blockquote>
+This is work in progress, but the full functionality of CommonTeX is
+already present (thanks to the excellent work of Pat Monardo 10 years ago). 
+I have tested both plain TeX and LaTeX input files, the latter also
+with use of add-on packages like amsLaTeX. In order to preload
+plain.tex or latex.ltx, use the options <code>--plain</code>
+or <code>--latex</code> (you need the plain tex or latex input files
+for this to work; note that TeX++ currently does not use format
+files, but on modern machines reading and processing of 
+plain.tex or latex.ltx typically takes only a small fraction of a second).
+<p>
+Current work focuses on getting the TeX++ specific features in place
+(margin settings and other page geometry) and cleaning up the I/O as 
+well as the error messages and warnings. More information on recent 
+progress can be found in the <a href="ChangeLog">ChangeLog</a>.
+</blockquote>
+<p><br><p>
+
+<a name="download"><h3>Download and install</h3></a>
+<blockquote>
+You need the following additional software in order to compile
+and use TeX++:
+<ul>
+<li>A decent C++ compiler; gcc 3.x and higher will do.
+<font color="red">If you encounter compilation errors, mail me.</font></li>
+</ul>
+<p>
+Then download and install <a href="texpp.tar.gz">texpp.tar.gz</a>
+(SIZE Kb).
+<p>
+The current version is <strong>VERSION</strong> dated
+<strong>DATE</strong>. The usual GNU installation instructions apply.
+See the file <code>COPYING</code> for license information (it's
+essentially the license of CommonTeX).
+<p>
+After installation, you should be able to go to the <code>tests</code>
+directory and run
+<center><pre>texpp --plain < tst.tex > out.dvi</pre></center>
+Run the program with the <code>--help</code> flag for a list of the
+options.
+</blockquote>
+<p><br><p>
+
+<a name="new"><h3>New features</h3></a>
+<blockquote>
+TeX++ has the following new features (compared to Knuth's original TeX):
+<dl>
+<dt><strong>Command-line settings for page geometry</strong></dt>
+<dd>I intend to use TeX++ as an engine for a TeX document viewer. This
+should typeset based on the viewer window, not on the geometry
+settings in the input file. TeX++ can be driven as
+<center><pre>texpp --hsize=20cm --vsize=25cm</pre></center>
+to produce pages which have been typeset to the requested size.</dd>
+<dt><strong>Standard Unix behaviour for input/output</strong></dt>
+<dd>TeX++ reads input from stdin, writes dvi output to stdout, and
+diagnostic messages to stderr. There is no .log file anymore,
+but instead an option <code>--verbose</code>, which makes the
+diagnostics on stderr more verbose. Unless your TeX file
+does <code>\open</code> calls, TeX++ does not produce any
+files, just output to stdout and stderr.</dd>
+<dt><strong>Removal of old-fashioned terminal i/o</strong></dt>
+<dd>TeX has a whole bunch of routines that allow you to edit the
+input file while running the program, modify it, and do other
+types of interactive manipulation. This has been cut out completely,
+making its behaviour more robust (if there is an error, TeX++ program
+will print a message on stderr, then exit with an error code).</dd>
+<dt><strong>Complexity reduction</strong></dt>
+<dd>Good Unix programs are nice single binaries that you can install
+anywhere and configure with a couple of environment variables. 
+</dl>
+<p>
+Other anticipated features, to be added in the near future:
+<dl>
+<dt><strong>Checkpointing</strong></dt>
+<dd>The idea of "format files", which simply represent the internal
+memory of TeX after loading (many) macros, is very useful, but was
+implemented in a rather old-fashioned way in the original TeX.
+With TeX++ you can dump the state of memory at any time in a 
+readable format using the <code>\dump</code> command. Such dump
+files can be read with <code>\restore</code>.
+</dl>
+<p>
+The binary of TeX++ is a bit under 200Kb in size, linked to the
+ standard C and C++ libraries, and that's it: no
+zillions of supporting programs and libraries, 
+no huge directory trees with zillions
+of configuration files, but just a single nice Unix binary that you
+can install anywhere you like.</dd>
+</dl>
+</blockquote>
+<p><br><p>
+
+<a name="errors"><h3>Error/warning messages</h3></a>
+<blockquote>
+Error and warning messages have been cleaned up and are presented in a more
+structured way:
+<blockquote><pre>file.tex:345-387:Overfull hbox (4.5pt too wide)
+another.tex:843:
+</pre></blockquote>
+</blockquote>
+<p><br><p>
+
+<a name="options"><h3>Options</h3></a>
+<blockquote>
+The following startup options are available:
+<center><table>
+<tr><td>--help</td><td></td></tr>
+<tr><td>--hsize</td><td>set the initial value of the \hsize dimen</td></tr>
+<tr><td>--vsize</td><td>set the initial value of the \vsize dimen</td></tr>
+<tr><td>--hoffset</td><td>set the value of \hoffset</td></tr>
+<tr><td>--voffset</td><td>set the value of \voffset</td></tr>
+<tr><td>--margin</td><td>different way to set the margin size</td></tr>
+<tr><td>--verbose</td></tr>
+<tr><td>--debug</td></tr>
+<tr><td>--version</td></tr>
+</table></center>
+If you want a mode as compatible with Knuth's original TeX as
+possible, use the option <code>--verbose</code> (the 
+<code>--compatible</code> option is now switched on by default and
+switches off automatically when you add margin options). Output,
+however, still goes to stdout instead of a .dvi file, and logging
+information goes to stderr instead of the .log file.
+</blockquote>
+<p><br><p>
+
+<a name="paths"><h3>Path settings</h3></a>
+<blockquote>
+TeX++ uses the simple though effective Unix philosophy: everything
+that belongs together should sit in the same directory. Therefore,
+path settings for TeX++ are extremely simple: use the environment
+variables
+<ul>
+<li><strong>TEXPP_TFM</strong>: location of .tfm files.
+<li><strong>TEXPP_STY</strong>: location of .sty and other input files.
+</ul>
+These variables contain ':' separated lists of paths.  Typically,
+you would have one system-wide <code>/usr/lib/tex/tfm</code>
+and one <code>/usr/lib/tex/sty</code> as well as per-user directories
+for these sitting in users' home directories.
+<p>
+If you don't like "everything in one spot" idea, you should not
+be tempted to re-invent kpathsea. Instead, take a look 
+at <a
+href="http://www.gormand.com.au/peters/tools/graft/graft.html">Graft</a>
+for the right solution to the separation of packages in their own
+directories (hint: soft links are your friend). 
+If you have a performance problem without kpathsea, then
+you probably should be thinking about dropping NFS in favour of 
+more intelligent networked filesystems.
+</blockquote>
+</body>
+<hr noshade size=1>
+<!-- Begin Nedstat Basic code -->
+<!-- Title: TeX++ -->
+<!-- URL: http://www.damtp.cam.ac.uk/user/kp229/tex++ -->
+<script language="JavaScript" type="text/javascript"
+src="http://m1.nedstatbasic.net/basic.js">
+</script>
+<script language="JavaScript" type="text/javascript" >
+<!--
+  nedstatbasic("ACVixQTiJMTzEPj4bDUa5wmi36JQ", 0);
+// -->
+</script>
+<noscript>
+<a target="_blank"
+href="http://v1.nedstatbasic.net/stats?ACVixQTiJMTzEPj4bDUa5wmi36JQ"><img
+src="http://m1.nedstatbasic.net/n?id=ACVixQTiJMTzEPj4bDUa5wmi36JQ"
+border="0" nosave width="18" height="18"
+alt="Nedstat Basic - Free web site statistics"></a>
+</noscript>
+<!-- End Nedstat Basic code -->&nbsp; $Id: index.html,v 1.18 2004/01/16 16:10:31 kp229 Exp $
+</html>

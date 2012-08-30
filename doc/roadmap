@@ -1,0 +1,67 @@
+
+- make a test set (perhaps include some minimal tex style
+  and font files for this).
+
+- remove all references to non-fixed integers like 'short'
+  and replace with stdint.h types.
+
+- document with Doxygen or something like that so we can
+  browse the source more easily.
+
+---
+
+- in box.c, replace all the new_* functions with actual
+  constructors.
+
+- make error messages localised (ie. remove text from main
+	program).
+
+- put the tex types in the tex namespace as well (file, ptr,
+	str, ...)
+
+- move the local per *.o variables into the private data 
+  segment.
+
+- ditto for the tex::* variables which are actually local to
+  a given file.
+
+<html>
+What has been done:
+<dl>
+<dt>Clean C++ code</dt>
+<dd>The code does not rely on the preprocessor anymore,
+all variables are class members (i.e. no globals) or
+in the <code>tex</code> namespace.
+Initialisation and object tear down is done through
+constructors/destructors.
+</dd>
+
+<dt>Error handling cleanup</dt>
+<dd>All fatal errors are handled using C++ exceptions.
+The old help texts have been removed. The interactive
+mode is gone as well.
+</dd>
+</dl>
+
+Things for the future:
+<dl>
+<dt>output drivers</dt>
+<dd>The routines in <tt>class dvi</tt> could, instead of
+writing a dvi file, equally well drive a display directly,
+or write in a different format. The interface should be
+cleaned up and some sample display driver written.
+</dd>
+
+<dt>C++ primitives</dt>
+<dd>The system right now has all primitives hidden in the
+single big main loop. A better approach would be to put 
+them all in separate classes; that would also allow for
+much simpler extensions.
+</dd>
+
+<dt>Font handling</dt>
+<dd>Information about fonts is closely tied to the output
+device. It perhaps makes sense to put routines in the
+output class for querying font metrics.
+</dl>
+

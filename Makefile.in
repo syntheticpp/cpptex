@@ -1,0 +1,23 @@
+
+all: program
+
+program:
+	( cd src && $(MAKE) );
+
+install:
+	install -d @prefix@/bin
+	( cd src && $(MAKE) install );
+	install -d @prefix@/man/man1
+	install -m 644 man/man1/tex++.1 @prefix@/man/man1
+
+clean:
+	( cd src && $(MAKE) clean );
+	( cd tests && $(MAKE) clean );
+	rm -f *~
+
+distclean: clean
+	( cd src && $(MAKE) distclean );
+	rm -f Makefile config.cache config.log config.status 
+
+depend:
+	( cd src && $(MAKE) .depend );

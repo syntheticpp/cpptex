@@ -1,0 +1,42 @@
+SRC = align.c alloc.c arith.c box.c boxlist.c cells.c chr.c \
+	cmd.c cond.c def.c dvi.c error.c eval.c expand.c \
+	fileio.c hyph.c math.c mathlist.c mlst-hlst.c \
+	pack.c page.c par.c print.c \
+	scan.c str.c sym.c tex.c texext.c \
+	tfm.c tok.c toklist.c
+
+OBJ = tfm.o box.o arith.o \
+   tok.o align.o alloc.o arith.o box.o boxlist.o cells.o chr.o \
+	cmd.o cond.o def.o dvi.o error.o eval.o expand.o \
+	fileio.o hyph.o math.o mathlist.o mlst-hlst.o \
+	pack.o page.o par.o print.o \
+	scan.o str.o sym.o tex.o texext.o \
+	tfm.o tok.o toklist.o
+
+EXTRA_CFLAGS = -O2 -Wall -pedantic
+
+all: tex++
+
+%.o: %.c
+	${CXX} ${CFLAGS} ${EXTRA_CFLAGS} -c -o $@ $<
+
+tex++: ${OBJ}
+	${CXX} ${CFLAGS} ${OBJ} -o $@
+
+install:
+	install -m 755 tex++ @prefix@/bin/tex++
+	( cd @prefix@/bin; ln -fs texpp latex++ )
+
+clean:
+	rm -f *.o 
+
+distclean: clean
+	rm -f tex++ latex *.log *.dvi *.aux *.bak Makefile
+
+.depend:
+	rm -f .depend
+	for i in ${SRC}; \
+		do    g++ -E -MM -MT `echo $$i | sed -e 's/\.\///' -e 's/\.c/\.o/'` ${CFLAGS} ${EXTRA_CFLAGS} $$i >> .depend; \
+		done
+
+include .depend

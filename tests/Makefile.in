@@ -1,0 +1,14 @@
+
+TSTS: test_tfm
+
+%: %.o
+	${CXX} -o $@ $<
+
+%.o: %.c
+	${CXX} -c ${CFLAGS} ${EXTRA_CFLAGS} -o $@ $<
+
+distclean: clean
+	rm -f Makefile
+
+clean:
+	rm -f *.aux *.log *~ out.dvi *.fmt

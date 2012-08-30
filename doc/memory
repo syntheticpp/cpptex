@@ -1,0 +1,147 @@
+
+CommonTeX's memory layout:
+
+ints are also called words and are assumed to be 32 bits wide.  The
+present implementation fails horribly on 64 bits machines because it
+assumes that pointers can be converted to ints. This is mainly visible
+in the treatment of 'equiv_field', which is an int but sometimes stores
+a pointer to a list. See below.
+
+alloc/free routines:
+
+  - alloc: ptr  new_node(int size)
+           void free_node(ptr p, int size)
+
+registers:
+
+  - sym:
+
+   struct reg_t {
+     	  short type_field;
+     	  short level_field;
+     	  int   equiv_field;
+     };
+   typedef struct reg_t * reg;
+
+   reg_equiv(R)  ((R))->equiv_field
+
+There are various sets of registers. These are listed in sym.h and
+allocated in sym.c's init. We could replace them with
+vector<reg>(size). They are never freed! Also, if we want e.g. more
+box registers, this is where we should make changes.
+
+	extern	reg	*skip_reg;
+	extern	reg	*mu_skip_reg;
+	extern	reg	*box_reg;
+	extern	reg	*int_reg;
+	extern	reg	*dimen_reg;
+	extern	reg	*toks_reg;
+	extern	reg	*fnt_reg;
+	extern	reg	*cat_code_reg;
+	extern	reg	*lc_code_reg;
+	extern	reg	*uc_code_reg;
+	extern	reg	*sf_code_reg;
+	extern	reg	*math_code_reg;
+	extern	reg	*del_code_reg;
+
+When a new thing is put in a register, using reg_define, it is first
+checked whether the existing value was defined on the same bracket
+level.  If so, it is destroyed, otherwise it is saved (reg_save, which
+copies the struct reg_t onto the save_stack pointed to by save_ptr).
+
+The 'equiv_field' is an integer, pointing into the table of
+equivalents.  However, as you can see from reg_destory, this can be an
+int or a pointer, depending on the type_field:
+  
+  BOX_REG:            pointer to node list
+  MU_SKIP_REG:        spec (int)
+  SKIP_REG:           spec (int)
+  DIMEN_REG:          scal (int)
+  INT_REG:            int
+  TOKS_REG:           pointer to token list
+  FNT_REG:            int
+  CAT_CODE_REG:       int
+  LC_CODE_REG:        int
+  UC_CODE_REG:        int
+  SF_CODE_REG         int
+  MATH_CODE_REG:      int
+  DEL_CODE_REG:       int
+
+So there are actually only two pointer types.
+
+Now for the list structures. There are three 'cell' types, defined in tex.h:
+
+struct qcell {
+	short	b0;
+	short	b1;
+	short	b2;
+	short	b3;
+};
+union hcell { 
+	int	i;   
+	ptr	p;
+	struct {
+		short	b0;
+		short	b1;
+	} qq;
+};
+class mcell { 
+	public:
+		ptr& link();
+
+		hcell	h1;
+		hcell	h2;
+};
+
+IMPORTANT: not all nodes have the same size. The above structs are only
+the 'heads' of each node.
+Because this is such a mess, we should find out which types of linked
+lists are actually being used (ie. what data is stored in the various lists).
+
+- horizontal lists
+    - singly linked using the 'link' field. (int32_t)
+    - typed, using the 'type' field.        (int8?)
+    - subtyped, 
+
+        - char_node:  16 link  (that should change)
+                       8  char
+                       8  font  (>=FONT_BASE, to avoid extra type field)
+        - hlist_node: 16 link  (should change)
+                      16 type & subtype (unused)
+                      32 scal width
+                      32 scal depth
+                      32 scal height
+                      32 scal shift_amount
+                      16 list_ptr (points to list from which this was made)
+                       8 glue_order
+                       8 glue_sign
+                      32 glue_set
+        - vlist_node:  identical
+        - rule_node:  16 link
+                      16 type & subtype (unused)
+                      32 scal width
+                      32 scal depth
+                      32 scal height
+        - ins_node:   16 link
+                      16 type & subtype (box number)
+                      32 float_cost
+                      32 scal width
+                      32 scal depth
+                      32 scal height
+        - mark_node:
+        - adjust_node:
+        - ligature_node:
+        - disc_node:
+        - whatsit_node:
+        - math_node:    
+        - glue_node:
+        - kern_node:
+        - penalty_node:
+        - unset_node:
+        - style_node:
+
+SEE the new nodes.h file.
+
+- vertical lists
+- node list
+- token list
